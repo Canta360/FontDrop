@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/screenshot.png" alt="FontDrop with eight fonts in the list and Yu Gothic shown in the preview" width="640">
+  <img src="docs/images/screenshot-en.png" alt="FontDrop with eight fonts in the list and Yu Gothic shown in the preview" width="640">
 </p>
 
 ## How it works

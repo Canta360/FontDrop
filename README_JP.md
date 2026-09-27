@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/screenshot.png" alt="8 個のフォントを一覧に表示し、游ゴシックをプレビューしている FontDrop" width="640">
+  <img src="docs/images/screenshot-ja.png" alt="8 個のフォントを一覧に表示し、游ゴシックをプレビューしている FontDrop" width="640">
 </p>
 
 ## 使い方
