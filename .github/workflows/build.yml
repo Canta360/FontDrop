@@ -27,7 +27,18 @@ jobs:
 
       - name: Publish release
         if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
+        shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" bin/FontDrop.exe --title "FontDrop $GITHUB_REF_NAME" --generate-notes
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = $env:GITHUB_REF_NAME
+          $name = "FontDrop-$($tag.TrimStart('v')).exe"
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item bin\FontDrop.exe "release\$name"
+          $hash = (Get-FileHash "release\$name" -Algorithm SHA256).Hash
+          [IO.File]::WriteAllText("$PWD\release\$name.sha256", "$hash  $name`r`n")
+          $notes = ".github\release-notes\$tag.md"
+          if (-not (Test-Path $notes)) { throw "Missing release notes: $notes" }
+          gh release create $tag "release\$name" "release\$name.sha256" --title "FontDrop $($tag.TrimStart('v'))" --notes-file $notes
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed: $LASTEXITCODE" }

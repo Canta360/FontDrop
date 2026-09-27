@@ -1,86 +1,91 @@
-# FontDrop
+<p align="center">
+  <img src="docs/images/icon.png" alt="FontDrop" width="96">
+</p>
 
-[![Build](https://github.com/Canta360/FontDrop/actions/workflows/build.yml/badge.svg)](https://github.com/Canta360/FontDrop/actions/workflows/build.yml)
+<h1 align="center">FontDrop</h1>
 
-Windows 用の、フォントをまとめて確認・インストールする小さなツールです。
-A small Windows utility for reviewing and batch-installing fonts. ([English below](#english))
+<p align="center">
+  Batch font installer for Windows.<br>
+  Drop in fonts, ZIPs or whole folders, check what they look like, and install only the ones you want.
+</p>
 
-![FontDrop](docs/screenshot.png)
+<p align="center">
+  <a href="README_JP.md">日本語</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#build">Build</a> ·
+  <a href="https://capitata.dev">capitata.dev</a>
+</p>
 
-## 特長
+<p align="center">
+  <img src="docs/images/screenshot.png" alt="FontDrop with eight fonts in the list and Yu Gothic shown in the preview" width="640">
+</p>
 
-- フォントファイル・ZIP・フォルダ（サブフォルダ含む）をドラッグ＆ドロップで追加
-- 選んだフォントをその場でプレビュー（サンプル文字列は自由に変更可）
-- チェックを入れたフォントだけをインストール
-- インストール済み（同名ファイル・同名登録）のフォントは自動でスキップ
-- 既定は「現在のユーザー用」（管理者権限不要）。チェックを入れると管理者権限で「全ユーザー用」にインストール
-- 日本語 / 英語 UI（初期言語は Windows の表示言語に合わせ、アプリ内で切り替え可能）
-- 追加のランタイムやインストール不要の単体 exe
+## How it works
 
-対応形式: `.ttf` `.otf` `.ttc` `.fon` `.fnt`
+1. Drop font files, ZIP archives or folders onto the window, or pick them
+   with **Files / ZIP...** and **Folder...**. Folders are searched with
+   their subfolders.
+2. Click a font to preview it. The sample text at the top of the preview
+   can be changed.
+3. Uncheck anything you do not want, then press **Install**.
 
-## ダウンロード
+Fonts are installed for the current user, so no administrator rights are
+needed. To install for everyone on the PC, check **Install for all users
+(administrator)** first; Windows asks for permission before anything is
+copied. Fonts that are already installed are skipped.
 
-[Releases](https://github.com/Canta360/FontDrop/releases) から `FontDrop.exe` をダウンロードして実行してください。
-Windows 10 / 11（.NET Framework 4.x は標準搭載）で動作します。
+Supported formats: `.ttf`, `.otf`, `.ttc`, `.fon` and `.fnt`.
 
-> 署名していない exe のため、初回起動時に SmartScreen の警告が出ることがあります。「詳細情報」→「実行」で起動できます。
+The window is in Japanese or English, following Windows; you can switch it
+from the menu in the top right.
 
-## 使い方
+## Install
 
-1. `FontDrop.exe` を起動する
-2. フォントファイル・ZIP・フォルダをウィンドウにドロップ（または「ファイル / ZIP...」「フォルダ...」から選択）
-3. 一覧でフォントを選ぶとプレビューが表示されるので、不要なものはチェックを外す
-4. 「インストール」を押す
+Download `FontDrop-1.0.0.exe` from [Releases](https://github.com/Canta360/FontDrop/releases/latest)
+and run it. There is nothing to install: it is a single program that runs on
+Windows 10 and 11, which already include the .NET Framework it needs.
 
-全ユーザー用にインストールしたい場合は「管理者権限で全ユーザー用にインストール」にチェックを入れてから実行します（UAC の確認が表示されます）。
+The program is not code-signed yet, so Windows SmartScreen may ask you to
+confirm before it runs.
 
-## ビルド
+## Build
 
-外部パッケージや .NET SDK は不要で、Windows 標準の C# コンパイラ（.NET Framework 4.x の `csc.exe`）でビルドできます。
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\build.ps1
-```
-
-`bin\FontDrop.exe` が生成され、続けてセルフテスト（`FontDrop.exe --self-test`）が実行されます。
-アイコンを作り直す場合は `tools\make-icon.ps1` を実行してください。
-
-### リリース
-
-`v1.2.3` のようなタグを push すると、GitHub Actions がビルドして Release に `FontDrop.exe` を添付します。
-
----
-
-## English
-
-FontDrop is a small Windows utility for reviewing and batch-installing fonts.
-
-- Accepts individual font files, ZIP archives, and folders (including subfolders) via drag and drop
-- Shows a live preview with editable sample text
-- Installs only the fonts you check
-- Skips fonts already installed for the selected scope
-- Installs for the current user by default (no admin rights needed); optional elevated all-users mode
-- Japanese and English UI; the initial language follows Windows and can be switched in the app
-- Single self-contained exe, no runtime to install
-
-Supported formats: `.ttf`, `.otf`, `.ttc`, `.fon`, `.fnt`.
-
-### Download
-
-Get `FontDrop.exe` from [Releases](https://github.com/Canta360/FontDrop/releases). Runs on Windows 10 / 11 (.NET Framework 4.x is built in).
-The exe is unsigned, so SmartScreen may warn on first launch — choose "More info" → "Run anyway".
-
-### Build
-
-No SDK or third-party packages are required; the build uses the .NET Framework C# compiler that ships with Windows.
+No SDK or packages are needed; the build uses the C# compiler that comes
+with the .NET Framework on Windows.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
-This produces `bin\FontDrop.exe` and runs the built-in self-test. Pushing a `v*` tag builds the exe in GitHub Actions and attaches it to a release.
+This writes `bin\FontDrop.exe` and runs its self-test
+(`FontDrop.exe --self-test`). `tools\make-icon.ps1` redraws the icon.
+
+Pushing a `v*` tag builds the program on GitHub Actions and publishes a
+release with its SHA-256 checksum, using the notes in
+`.github/release-notes/<tag>.md`.
+
+## Repository layout
+
+| Path | Contents |
+| --- | --- |
+| `MainForm.cs` | The window: the font list, preview and install buttons. |
+| `FontDiscovery.cs` | Finds fonts in files, folders and ZIP archives. |
+| `FontInstaller.cs` | Copies fonts into place and registers them with Windows. |
+| `Localization.cs` | Japanese and English text. |
+| `Program.cs` | Start-up, the administrator install and the self-test. |
+| `assets` | The icon. |
 
 ## License
 
-[MIT](LICENSE)
+FontDrop is available under the [MIT License](LICENSE).
+
+FontDrop is made by [Capitata](https://capitata.dev).
+
+<p align="center">
+  <a href="https://capitata.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/images/capitata-dark.png">
+      <img src="docs/images/capitata-light.png" alt="Capitata" width="160">
+    </picture>
+  </a>
+</p>
