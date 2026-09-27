@@ -30,11 +30,16 @@ internal sealed class MainForm : Form
     Font previewFont;
     UiLanguage language;
     bool changingLanguage;
+    bool handedOffToElevated;
 
     public MainForm(UiLanguage initialLanguage)
     {
         language = initialLanguage;
+        AutoScaleDimensions = new SizeF(96F, 96F);
+        AutoScaleMode = AutoScaleMode.Dpi;
+        Font = SystemFonts.MessageBoxFont;
         Text = Texts.Get("Title", language);
+        try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
         Width = 820;
         Height = 520;
         MinimumSize = new Size(680, 420);
@@ -44,7 +49,11 @@ internal sealed class MainForm : Form
         DragDrop += OnDragDrop;
         BuildLayout();
         ApplyLanguage();
-        FormClosed += delegate { DisposePreview(); };
+        FormClosed += delegate
+        {
+            DisposePreview();
+            if (!handedOffToElevated) FontDiscovery.DeleteSessionFolder(FontDiscovery.SessionTemp);
+        };
     }
 
     void BuildLayout()
@@ -105,7 +114,8 @@ internal sealed class MainForm : Form
         previewPanel.Controls.Add(preview);
         previewPanel.Controls.Add(previewInfo);
         previewPanel.Controls.Add(sample);
-        SplitContainer split = new SplitContainer { Dock = DockStyle.Fill, SplitterDistance = 420 };
+        SplitContainer split = new SplitContainer { Dock = DockStyle.Fill };
+        Load += delegate { split.SplitterDistance = split.Width / 2; };
         split.Panel1.Controls.Add(listPanel);
         split.Panel2.Controls.Add(previewPanel);
 
@@ -209,6 +219,7 @@ internal sealed class MainForm : Form
         fontList.Items.Clear();
         UpdatePreview();
         UpdateSelectionStatus();
+        FontDiscovery.DeleteSessionFolder(FontDiscovery.SessionTemp);
     }
 
     void SetAllChecked(bool value)
@@ -282,8 +293,9 @@ internal sealed class MainForm : Form
         try
         {
             File.WriteAllLines(manifest, selected, Encoding.UTF8);
-            System.Diagnostics.ProcessStartInfo info = new System.Diagnostics.ProcessStartInfo(Application.ExecutablePath, "--elevated \"" + manifest + "\" " + Texts.Code(language)) { Verb = "runas", UseShellExecute = true };
+            System.Diagnostics.ProcessStartInfo info = new System.Diagnostics.ProcessStartInfo(Application.ExecutablePath, "--elevated \"" + manifest + "\" " + Texts.Code(language) + " \"" + FontDiscovery.SessionTemp + "\"") { Verb = "runas", UseShellExecute = true };
             System.Diagnostics.Process.Start(info);
+            handedOffToElevated = true;
             Close();
         }
         catch (System.ComponentModel.Win32Exception ex)

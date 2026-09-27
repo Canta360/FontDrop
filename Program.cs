@@ -11,14 +11,20 @@ internal static class Program
     {
         if (args.Length > 0 && args[0].Equals("--elevated", StringComparison.OrdinalIgnoreCase))
         {
-            RunElevated(args.Length > 1 ? args[1] : "", args.Length > 2 ? Texts.Parse(args[2]) : Texts.Detect());
+            RunElevated(args.Length > 1 ? args[1] : "", args.Length > 2 ? Texts.Parse(args[2]) : Texts.Detect(), args.Length > 3 ? args[3] : "");
             return;
         }
         if (args.Length > 0 && args[0].Equals("--self-test", StringComparison.OrdinalIgnoreCase))
         {
-            SelfTest();
+            try { SelfTest(); }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Self-test failed: " + ex.Message);
+                Environment.Exit(1);
+            }
             return;
         }
+        FontDiscovery.DeleteStaleSessions(TimeSpan.FromDays(2));
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         Application.ThreadException += delegate(object sender, System.Threading.ThreadExceptionEventArgs e)
@@ -28,11 +34,11 @@ internal static class Program
         Application.Run(new MainForm(Texts.Detect()));
     }
 
-    static void RunElevated(string manifest, UiLanguage language)
+    static void RunElevated(string manifest, UiLanguage language, string sessionFolder)
     {
         try
         {
-            string[] paths = File.ReadAllLines(manifest, Encoding.UTF8).Where(File.Exists).ToArray();
+            string[] paths = File.ReadAllLines(manifest, Encoding.UTF8).Where(FontDiscovery.IsFont).Where(File.Exists).ToArray();
             InstallResult result = FontInstaller.Install(paths, true);
             MessageBox.Show(result.ToMessage(language, true), Texts.Get("Title", language), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -40,7 +46,11 @@ internal static class Program
         {
             MessageBox.Show(ex.Message, Texts.Get("Title", language), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-        finally { TryDelete(manifest); }
+        finally
+        {
+            TryDelete(manifest);
+            FontDiscovery.DeleteSessionFolder(sessionFolder);
+        }
     }
 
     static void SelfTest()
@@ -50,6 +60,11 @@ internal static class Program
         Directory.CreateDirectory(root);
         if (!FontDiscovery.SafeExtractPath(root, "a/b.otf").StartsWith(Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase)) throw new Exception("Safe path test failed.");
         try { FontDiscovery.SafeExtractPath(root, "../escape.otf"); throw new Exception("ZIP traversal test failed."); } catch (InvalidDataException) { }
+        if (!FontDiscovery.IsSessionFolder(FontDiscovery.SessionTemp) || FontDiscovery.IsSessionFolder(root) || FontDiscovery.IsSessionFolder(Path.GetTempPath()))
+            throw new Exception("Session folder test failed.");
+        if (Texts.Parse("ja") != UiLanguage.Japanese || Texts.Parse("en") != UiLanguage.English || Texts.Get("Title", UiLanguage.English) == "Title")
+            throw new Exception("Localization test failed.");
+        Directory.Delete(root, true);
         Console.WriteLine("Self-test passed");
     }
 
