@@ -187,29 +187,54 @@ internal sealed class MainForm : Form
 
     void AddSources(IEnumerable<string> paths)
     {
-        foreach (string path in paths)
+        List<ArchiveProblem> problems = new List<ArchiveProblem>();
+        Cursor = Cursors.WaitCursor;
+        try
         {
-            if (!File.Exists(path) && !Directory.Exists(path)) continue;
-            string source = Path.GetFullPath(path);
-            if (!addedSources.Add(source)) continue;
-            try
+            foreach (string path in paths)
             {
-                List<FontEntry> found = FontDiscovery.Inspect(source);
-                foreach (FontEntry entry in found)
+                if (!File.Exists(path) && !Directory.Exists(path)) continue;
+                string source = Path.GetFullPath(path);
+                if (!addedSources.Add(source)) continue;
+                try
                 {
-                    if (entries.Any(item => item.SourcePath.Equals(entry.SourcePath, StringComparison.OrdinalIgnoreCase))) continue;
-                    entries.Add(entry);
-                    fontList.Items.Add(entry, true);
+                    DiscoveryResult found = FontDiscovery.Inspect(source);
+                    foreach (FontEntry entry in found.Fonts)
+                    {
+                        if (entries.Any(item => item.SourcePath.Equals(entry.SourcePath, StringComparison.OrdinalIgnoreCase)
+                            || item.DisplayName.Equals(entry.DisplayName, StringComparison.OrdinalIgnoreCase))) continue;
+                        entries.Add(entry);
+                        fontList.Items.Add(entry, true);
+                    }
+                    UpdateSelectionStatus();
+                    // Let the same source be added again, e.g. after installing 7-Zip; fonts already listed are not repeated.
+                    if (found.Problems.Count > 0) addedSources.Remove(source);
+                    problems.AddRange(found.Problems);
+                    if (found.Fonts.Count == 0 && found.Problems.Count == 0)
+                        MessageBox.Show(this, Texts.Get("NoFonts", language) + Path.GetFileName(source), Texts.Get("Title", language));
                 }
-                UpdateSelectionStatus();
-                if (found.Count == 0) MessageBox.Show(this, Texts.Get("NoFonts", language) + Path.GetFileName(source), Texts.Get("Title", language));
-            }
-            catch (Exception ex)
-            {
-                addedSources.Remove(source);
-                MessageBox.Show(this, ex.Message, Texts.Get("Title", language), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                catch (Exception ex)
+                {
+                    addedSources.Remove(source);
+                    MessageBox.Show(this, ex.Message, Texts.Get("Title", language), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
+        finally { Cursor = Cursors.Default; }
+        if (problems.Count > 0) ShowArchiveProblems(problems);
+    }
+
+    void ShowArchiveProblems(List<ArchiveProblem> problems)
+    {
+        const int shown = 5;
+        StringBuilder text = new StringBuilder(Texts.Get("ArchiveProblems", language));
+        foreach (ArchiveProblem problem in problems.Take(shown))
+        {
+            text.Append("\r\n\r\n").Append(problem.DisplayName).Append("\r\n").Append(Texts.Get(problem.Reason, language));
+            if (!String.IsNullOrEmpty(problem.Detail)) text.Append("\r\n(").Append(problem.Detail).Append(")");
+        }
+        if (problems.Count > shown) text.Append("\r\n\r\n").Append(String.Format(Texts.Get("AndMore", language), problems.Count - shown));
+        MessageBox.Show(this, text.ToString(), Texts.Get("Title", language), MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
     void ClearList()

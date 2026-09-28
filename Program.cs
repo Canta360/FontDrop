@@ -56,6 +56,7 @@ internal static class Program
     static void SelfTest()
     {
         if (!FontDiscovery.IsFont("a.otf") || !FontDiscovery.IsFont("b.TTF") || FontDiscovery.IsFont("c.txt")) throw new Exception("Font extension test failed.");
+        if (!FontDiscovery.IsArchive("a.ZIP") || !FontDiscovery.IsArchive("b.7z") || !FontDiscovery.IsArchive("c.tar.GZ") || !FontDiscovery.IsArchive("d.lzh") || FontDiscovery.IsArchive("e.ttf") || FontDiscovery.IsArchive("f.gz")) throw new Exception("Archive extension test failed.");
         string root = Path.Combine(Path.GetTempPath(), "FontDropTest");
         Directory.CreateDirectory(root);
         if (!FontDiscovery.SafeExtractPath(root, "a/b.otf").StartsWith(Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase)) throw new Exception("Safe path test failed.");

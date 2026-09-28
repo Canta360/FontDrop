@@ -13,9 +13,9 @@ internal static class Texts
     static readonly Dictionary<string, string> Japanese = new Dictionary<string, string>
     {
         { "Title", "FontDrop — 一括フォント導入" },
-        { "DropHint", "フォントファイル・ZIP・フォルダをここにドロップ" },
+        { "DropHint", "フォントファイル・圧縮ファイル（ZIP・7z・RAR など）・フォルダをここにドロップ" },
         { "DropHint2", "中身を確認して、チェックしたものだけインストールします" },
-        { "Files", "ファイル / ZIP..." },
+        { "Files", "ファイル..." },
         { "Folder", "フォルダ..." },
         { "Clear", "クリア" },
         { "SelectAll", "全選択" },
@@ -38,15 +38,20 @@ internal static class Texts
         { "Failed", "失敗" },
         { "AdminCancelled", "管理者権限がキャンセルされました。" },
         { "SelectFolder", "フォントを探すフォルダを選択してください" },
-        { "FontFilter", "フォントまたはZIP|*.ttf;*.otf;*.ttc;*.fon;*.fnt;*.zip|すべてのファイル|*.*" }
+        { "FontFilter", "フォントまたは圧縮ファイル|*.ttf;*.otf;*.ttc;*.fon;*.fnt;*.zip;*.7z;*.rar;*.tar;*.gz;*.tgz;*.bz2;*.tbz2;*.tbz;*.xz;*.txz;*.zst;*.tzst;*.lzh;*.lha;*.cab|すべてのファイル|*.*" },
+        { "ArchiveProblems", "開けなかった圧縮ファイルがあります。ほかのフォントは一覧に追加しました。" },
+        { "ArchiveTooDeep", "圧縮ファイルの入れ子が深すぎるため開きませんでした。" },
+        { "ArchiveFailed", "開けませんでした。パスワード付きか、壊れている可能性があります。" },
+        { "TarUnavailable", "ZIP 以外の圧縮ファイルを開くには Windows 11 が必要です。展開してから、フォルダを追加してください。" },
+        { "AndMore", "ほか {0} 件" }
     };
 
     static readonly Dictionary<string, string> English = new Dictionary<string, string>
     {
         { "Title", "FontDrop — Batch Font Installer" },
-        { "DropHint", "Drop font files, ZIPs, or folders here" },
+        { "DropHint", "Drop font files, archives (ZIP, 7z, RAR and more), or folders here" },
         { "DropHint2", "Review the contents, then install only the checked items" },
-        { "Files", "Files / ZIP..." },
+        { "Files", "Files..." },
         { "Folder", "Folder..." },
         { "Clear", "Clear" },
         { "SelectAll", "Select all" },
@@ -69,7 +74,12 @@ internal static class Texts
         { "Failed", "Failed" },
         { "AdminCancelled", "Administrator permission was cancelled." },
         { "SelectFolder", "Select a folder containing fonts" },
-        { "FontFilter", "Fonts or ZIP|*.ttf;*.otf;*.ttc;*.fon;*.fnt;*.zip|All files|*.*" }
+        { "FontFilter", "Fonts or archives|*.ttf;*.otf;*.ttc;*.fon;*.fnt;*.zip;*.7z;*.rar;*.tar;*.gz;*.tgz;*.bz2;*.tbz2;*.tbz;*.xz;*.txz;*.zst;*.tzst;*.lzh;*.lha;*.cab|All files|*.*" },
+        { "ArchiveProblems", "Some archives could not be opened. The other fonts were added to the list." },
+        { "ArchiveTooDeep", "Not opened: archives are nested too deeply." },
+        { "ArchiveFailed", "Could not open it. It may be password-protected or damaged." },
+        { "TarUnavailable", "Archives other than ZIP need Windows 11. Extract it, then add the folder." },
+        { "AndMore", "and {0} more" }
     };
 
     public static string Get(string key, UiLanguage language)

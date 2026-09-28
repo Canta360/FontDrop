@@ -6,7 +6,7 @@
 
 <p align="center">
   Batch font installer for Windows.<br>
-  Drop in fonts, ZIPs or whole folders, check what they look like, and install only the ones you want.
+  Drop in fonts, archives or whole folders, check what they look like, and install only the ones you want.
 </p>
 
 <p align="center">
@@ -22,8 +22,8 @@
 
 ## How it works
 
-1. Drop font files, ZIP archives or folders onto the window, or pick them
-   with **Files / ZIP...** and **Folder...**. Folders are searched with
+1. Drop font files, archives or folders onto the window, or pick them
+   with **Files...** and **Folder...**. Folders are searched with
    their subfolders.
 2. Click a font to preview it. The sample text at the top of the preview
    can be changed.
@@ -34,7 +34,21 @@ needed. To install for everyone on the PC, check **Install for all users
 (administrator)** first; Windows asks for permission before anything is
 copied. Fonts that are already installed are skipped.
 
-Supported formats: `.ttf`, `.otf`, `.ttc`, `.fon` and `.fnt`.
+Supported fonts: `.ttf`, `.otf`, `.ttc`, `.fon` and `.fnt`, on their own or
+inside these archives:
+
+| Archive | Extensions |
+| --- | --- |
+| ZIP | `.zip` |
+| 7-Zip | `.7z` |
+| RAR | `.rar` |
+| tar | `.tar`, `.tar.gz`, `.tgz`, `.tar.bz2`, `.tbz2`, `.tbz`, `.tar.xz`, `.txz`, `.tar.zst`, `.tzst` |
+| LZH | `.lzh`, `.lha` |
+| Cabinet | `.cab` |
+
+Archives inside archives are opened too, such as a 7z inside a ZIP, up to
+three levels deep. Password-protected or damaged archives are skipped, and
+FontDrop tells you which ones after adding everything else.
 
 The window is in Japanese or English, following Windows; you can switch it
 from the menu in the top right.
@@ -42,8 +56,11 @@ from the menu in the top right.
 ## Install
 
 Download `FontDrop-1.0.0.exe` from [Releases](https://github.com/Canta360/FontDrop/releases/latest)
-and run it. There is nothing to install: it is a single program that runs on
-Windows 10 and 11, which already include the .NET Framework it needs.
+and run it. There is nothing to install: it is a single program.
+
+**Requirements:** Windows 11. FontDrop opens archives other than ZIP with the
+`tar` that comes with Windows 11, and uses the .NET Framework that is
+already part of Windows; nothing else is needed.
 
 The program is not code-signed yet, so Windows SmartScreen may ask you to
 confirm before it runs.
