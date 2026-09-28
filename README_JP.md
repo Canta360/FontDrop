@@ -66,7 +66,8 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
 `bin\FontDrop.exe` ができ、続けてセルフテスト（`FontDrop.exe --self-test`）が実行されます。
-アイコンは `tools\make-icon.ps1` で描き直せます。
+アイコンは `tools\make-icon.ps1` で、リポジトリを共有したときに GitHub が表示する画像は
+`tools\make-social-preview.ps1` で描き直せます（アイコンと英語のスクリーンショットから作ります）。
 
 `v*` のタグを push すると、GitHub Actions がビルドし、`.github/release-notes/<タグ>.md` のノートと
 SHA-256 チェックサムを付けてリリースを公開します。

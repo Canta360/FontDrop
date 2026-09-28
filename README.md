@@ -75,7 +75,9 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
 This writes `bin\FontDrop.exe` and runs its self-test
-(`FontDrop.exe --self-test`). `tools\make-icon.ps1` redraws the icon.
+(`FontDrop.exe --self-test`). `tools\make-icon.ps1` redraws the icon, and
+`tools\make-social-preview.ps1` redraws the image GitHub shows when the
+repository is shared, from the icon and the English screenshot.
 
 Pushing a `v*` tag builds the program on GitHub Actions and publishes a
 release with its SHA-256 checksum, using the notes in
@@ -86,11 +88,13 @@ release with its SHA-256 checksum, using the notes in
 | Path | Contents |
 | --- | --- |
 | `MainForm.cs` | The window: the font list, preview and install buttons. |
-| `FontDiscovery.cs` | Finds fonts in files, folders and ZIP archives. |
+| `FontDiscovery.cs` | Finds fonts in files, folders and archives, including archives inside archives. |
 | `FontInstaller.cs` | Copies fonts into place and registers them with Windows. |
 | `Localization.cs` | Japanese and English text. |
 | `Program.cs` | Start-up, the administrator install and the self-test. |
 | `assets` | The icon. |
+| `docs/images` | Screenshots, the social preview image and the Capitata logo. |
+| `tools` | Scripts that draw the icon and the social preview image. |
 
 ## License
 
