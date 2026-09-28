@@ -55,7 +55,7 @@ from the menu in the top right.
 
 ## Install
 
-Download `FontDrop-1.0.0.exe` from [Releases](https://github.com/Canta360/FontDrop/releases/latest)
+Download `FontDrop-1.0.1.exe` from [Releases](https://github.com/Canta360/FontDrop/releases/latest)
 and run it. There is nothing to install: it is a single program.
 
 **Requirements:** Windows 11. FontDrop opens archives other than ZIP with the
