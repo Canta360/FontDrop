@@ -55,7 +55,7 @@ FontDrop の処理はすべて PC の中で行われます。ネットワーク�
 
 ## インストール
 
-[Releases](https://github.com/Canta360/FontDrop/releases/latest) から `FontDrop-1.0.1.exe` をダウンロードして実行してください。
+[Releases](https://github.com/Canta360/FontDrop/releases/latest) から `FontDrop-1.0.2.exe` をダウンロードして実行してください。
 インストールは不要で、ひとつのファイルだけで動きます。
 
 **動作環境:** Windows 11。ZIP 以外の圧縮ファイルは Windows 11 に付いている `tar` で開き、.NET Framework も
