@@ -31,6 +31,10 @@ internal sealed class MainForm : Form
     UiLanguage language;
     bool changingLanguage;
     bool handedOffToElevated;
+    bool loading;
+    readonly Queue<string> pendingSources = new Queue<string>();
+    readonly List<ArchiveProblem> loadProblems = new List<ArchiveProblem>();
+    readonly List<string> loadEmpty = new List<string>();
 
     public MainForm(UiLanguage initialLanguage)
     {
@@ -185,42 +189,82 @@ internal sealed class MainForm : Form
         AddSources((string[])e.Data.GetData(DataFormats.FileDrop));
     }
 
+    // Sources are read one at a time on a worker thread so that large archives do not freeze the window.
+    // Anything added while a read is running waits in this queue.
     void AddSources(IEnumerable<string> paths)
     {
-        List<ArchiveProblem> problems = new List<ArchiveProblem>();
-        Cursor = Cursors.WaitCursor;
-        try
+        foreach (string path in paths)
         {
-            foreach (string path in paths)
-            {
-                if (!File.Exists(path) && !Directory.Exists(path)) continue;
-                string source = Path.GetFullPath(path);
-                if (!addedSources.Add(source)) continue;
-                try
-                {
-                    DiscoveryResult found = FontDiscovery.Inspect(source);
-                    foreach (FontEntry entry in found.Fonts)
-                    {
-                        if (entries.Any(item => item.SourcePath.Equals(entry.SourcePath, StringComparison.OrdinalIgnoreCase)
-                            || item.DisplayName.Equals(entry.DisplayName, StringComparison.OrdinalIgnoreCase))) continue;
-                        entries.Add(entry);
-                        fontList.Items.Add(entry, true);
-                    }
-                    UpdateSelectionStatus();
-                    // Let the same source be added again, e.g. after installing 7-Zip; fonts already listed are not repeated.
-                    if (found.Problems.Count > 0) addedSources.Remove(source);
-                    problems.AddRange(found.Problems);
-                    if (found.Fonts.Count == 0 && found.Problems.Count == 0)
-                        MessageBox.Show(this, Texts.Get("NoFonts", language) + Path.GetFileName(source), Texts.Get("Title", language));
-                }
-                catch (Exception ex)
-                {
-                    addedSources.Remove(source);
-                    MessageBox.Show(this, ex.Message, Texts.Get("Title", language), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
+            if (!File.Exists(path) && !Directory.Exists(path)) continue;
+            string source = Path.GetFullPath(path);
+            if (addedSources.Add(source)) pendingSources.Enqueue(source);
         }
-        finally { Cursor = Cursors.Default; }
+        if (!loading) ReadNextSource();
+    }
+
+    void ReadNextSource()
+    {
+        if (pendingSources.Count == 0)
+        {
+            FinishLoading();
+            return;
+        }
+        if (!loading)
+        {
+            loading = true;
+            SetBusy(true);
+        }
+        string source = pendingSources.Dequeue();
+        listStatus.Text = String.Format(Texts.Get("Loading", language), Path.GetFileName(source.TrimEnd(Path.DirectorySeparatorChar)));
+        Task.Factory.StartNew(() => FontDiscovery.Inspect(source)).ContinueWith(task =>
+        {
+            if (IsDisposed || !IsHandleCreated) return;
+            try
+            {
+                BeginInvoke((Action)delegate
+                {
+                    if (task.IsFaulted) OnSourceFailed(source, task.Exception.GetBaseException());
+                    else OnSourceRead(source, task.Result);
+                    ReadNextSource();
+                });
+            }
+            catch (InvalidOperationException) { }
+        });
+    }
+
+    void OnSourceRead(string source, DiscoveryResult found)
+    {
+        fontList.BeginUpdate();
+        foreach (FontEntry entry in found.Fonts)
+        {
+            if (entries.Any(item => item.SourcePath.Equals(entry.SourcePath, StringComparison.OrdinalIgnoreCase)
+                || item.DisplayName.Equals(entry.DisplayName, StringComparison.OrdinalIgnoreCase))) continue;
+            entries.Add(entry);
+            fontList.Items.Add(entry, true);
+        }
+        fontList.EndUpdate();
+        // Let the same source be added again; fonts already listed are not repeated.
+        if (found.Problems.Count > 0) addedSources.Remove(source);
+        loadProblems.AddRange(found.Problems);
+        if (found.Fonts.Count == 0 && found.Problems.Count == 0) loadEmpty.Add(Path.GetFileName(source));
+    }
+
+    void OnSourceFailed(string source, Exception error)
+    {
+        addedSources.Remove(source);
+        loadProblems.Add(new ArchiveProblem(Path.GetFileName(source), "ArchiveFailed", error.Message));
+    }
+
+    void FinishLoading()
+    {
+        loading = false;
+        SetBusy(false);
+        UpdateSelectionStatus();
+        List<string> empty = new List<string>(loadEmpty);
+        List<ArchiveProblem> problems = new List<ArchiveProblem>(loadProblems);
+        loadEmpty.Clear();
+        loadProblems.Clear();
+        if (empty.Count > 0) MessageBox.Show(this, Texts.Get("NoFonts", language) + String.Join(", ", empty), Texts.Get("Title", language));
         if (problems.Count > 0) ShowArchiveProblems(problems);
     }
 
@@ -255,6 +299,7 @@ internal sealed class MainForm : Form
 
     void UpdateSelectionStatus()
     {
+        if (loading) return;
         listStatus.Text = String.Format(Texts.Get("Count", language), entries.Count, fontList.CheckedItems.Count);
     }
 
@@ -341,6 +386,7 @@ internal sealed class MainForm : Form
         install.Enabled = !busy;
         allUsers.Enabled = !busy;
         languagePicker.Enabled = !busy;
+        Cursor = busy && loading ? Cursors.AppStarting : Cursors.Default;
     }
 
     void ShowResult(InstallResult result, bool allUsersScope)

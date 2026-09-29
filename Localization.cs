@@ -43,7 +43,8 @@ internal static class Texts
         { "ArchiveTooDeep", "圧縮ファイルの入れ子が深すぎるため開きませんでした。" },
         { "ArchiveFailed", "開けませんでした。パスワード付きか、壊れている可能性があります。" },
         { "TarUnavailable", "ZIP 以外の圧縮ファイルを開くには Windows 11 が必要です。展開してから、フォルダを追加してください。" },
-        { "AndMore", "ほか {0} 件" }
+        { "AndMore", "ほか {0} 件" },
+        { "Loading", "読み込み中… {0}" }
     };
 
     static readonly Dictionary<string, string> English = new Dictionary<string, string>
@@ -79,7 +80,8 @@ internal static class Texts
         { "ArchiveTooDeep", "Not opened: archives are nested too deeply." },
         { "ArchiveFailed", "Could not open it. It may be password-protected or damaged." },
         { "TarUnavailable", "Archives other than ZIP need Windows 11. Extract it, then add the folder." },
-        { "AndMore", "and {0} more" }
+        { "AndMore", "and {0} more" },
+        { "Loading", "Loading… {0}" }
     };
 
     public static string Get(string key, UiLanguage language)

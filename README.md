@@ -53,6 +53,13 @@ FontDrop tells you which ones after adding everything else.
 The window is in Japanese or English, following Windows; you can switch it
 from the menu in the top right.
 
+## Privacy
+
+Everything FontDrop does happens on your computer. It does not use the
+network, has no account and no telemetry, and keeps no settings or history.
+Fonts taken out of archives wait in a temporary folder that is removed when
+you close FontDrop. See [the privacy notice](PRIVACY.md).
+
 ## Install
 
 Download `FontDrop-1.0.1.exe` from [Releases](https://github.com/Canta360/FontDrop/releases/latest)
